@@ -133,6 +133,27 @@ def depth_first_search(problem):
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
     "*** YOUR CODE HERE ***"
+    #print("Start:", problem.get_start_state())
+    #print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
+    #print("Start's successors:", problem.get_successors(problem.get_start_state()))
+    
+    # i use the expanded_nodes and the frontier as described in the lectures
+    # expanded_nodes is a set from the class SearchNode
+    expanded_nodes = set()
+    frontier = util.Stack()
+    starting_node_info = (problem.get_start_state(),None,0)
+    starting_node = SearchNode(None,starting_node_info)
+    frontier.push(starting_node)
+    # until the frontier is not empty i perform the bfs
+    while frontier.is_empty()==False :
+        parent_node = frontier.pop()
+        expanded_nodes.add(parent_node.state)
+        if problem.is_goal_state(parent_node.state):
+            return parent_node.get_path()
+        for child_node_info in problem.get_successors(parent_node.state):
+            child_node = SearchNode(parent_node,child_node_info)
+            if frontier.contains(child_node)==False and child_node.state not in expanded_nodes:
+                frontier.push(child_node)
     util.raise_not_defined()
 
 
@@ -140,6 +161,29 @@ def depth_first_search(problem):
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    expanded_nodes = set()
+    frontier = util.Queue()
+    # compared to dfs here i have an additional set frontier_set of the class SearchNode
+    # where i keep track which nodes are in the frontier
+    # i use this set because the Queue does not have functions defined functions to tell me if an element is in there
+    frontier_set = set()
+    starting_node_info = (problem.get_start_state(),None,0)
+    starting_node = SearchNode(None,starting_node_info)
+    frontier.push(starting_node)
+    frontier_set.add(starting_node)
+    # a classic bfs is performed 
+    while frontier.is_empty()==False :
+        parent_node = frontier.pop()
+        frontier_set.remove(parent_node)
+        expanded_nodes.add(parent_node.state)
+        if problem.is_goal_state(parent_node.state): 
+            return parent_node.get_path()
+        for child_node_info in problem.get_successors(parent_node.state):
+            child_node = SearchNode(parent_node,child_node_info)
+            if child_node not in frontier_set and child_node.state not in expanded_nodes:
+                frontier.push(child_node)
+                frontier_set.add(child_node)
+
     util.raise_not_defined()
 
 def uniform_cost_search(problem):
