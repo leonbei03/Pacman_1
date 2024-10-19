@@ -18,6 +18,7 @@ Pacman agents (in search_agents.py).
 """
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -69,7 +70,8 @@ def tiny_maze_search(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 # def addSuccessors(problem, addCost=True):
 
@@ -108,8 +110,8 @@ class SearchNode:
             current_node = current_node.parent
         path.reverse()
         return path
-    
-    # Consider 2 nodes to be equal if their coordinates are equal (regardless of everything else)
+
+    #  Consider 2 nodes to be equal if their coordinates are equal (regardless of everything else)
     # def __eq__(self, __o: obj) -> bool:
     #     if (type(__o) is SearchNode):
     #         return self.__state == __o.__state
@@ -117,6 +119,7 @@ class SearchNode:
 
     # # def __hash__(self) -> int:
     # #     return hash(self.__state)
+
 
 def depth_first_search(problem):
     """
@@ -132,32 +135,101 @@ def depth_first_search(problem):
     print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    # At first, I implement the Stack and a set of already visited states
+    visited = set()
+    frontier = util.Stack()
+    # The start state is converted to a node with no parents and 0 costs to reach and added to the Stack
+    start_node = SearchNode(None, (problem.get_start_state(), None, 0))
+    frontier.push(start_node)
+    while not frontier.is_empty():
+        parent = frontier.pop()  # We examine the highest element on the stack
+        state = parent.state
+        if state not in visited:  # If we already were there, we skip and pop the next, if not -> go in
+            visited.add(state)
+            if problem.is_goal_state(state):  # If the state is the goal -> Abort and print path
+                return parent.get_path()
+            for successors in problem.get_successors(state):  # If not -> add children
+                if successors[0] not in visited:  # Only add notes that we have not visited yet
+                    suc_node = SearchNode(parent, successors)
+                    frontier.push(suc_node)
+    return []  # We found no goal state
+
+
 
 
 
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    frontier = util.Queue()  # We change the stack with a queue, the rest of the algorithm is equal
+    visited = set()
+    start_node = SearchNode(None, (problem.get_start_state(), None, 0))
+    frontier.push(start_node)
+    while not frontier.is_empty():
+        current = frontier.pop()
+        state = current.state
+        if state not in visited:
+            visited.add(state)
+            if problem.is_goal_state(state):
+                return current.get_path()
+            for child in problem.get_successors(state):
+                if child not in visited:
+                    child_node = SearchNode(current, child)
+                    frontier.push(child_node)
+
     util.raise_not_defined()
+
 
 def uniform_cost_search(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.PriorityQueue()
+    visited = set()
+    start_node = SearchNode(None, (problem.get_start_state(), None, 0))
+    frontier.push(start_node, 0)
+    while not frontier.is_empty():
+        current = frontier.pop()
+        state = current.state
+        if state not in visited:
+            visited.add(state)
+            if problem.is_goal_state(state):
+                return current.get_path()
+            for child in problem.get_successors(state):
+                if child not in visited:
+                    child_node = SearchNode(current, child)
+                    frontier.push(child_node, child_node.cost)
+
+    raise ValueError("Nothing found")
+
 
 def null_heuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
+
     return 0
+
 
 def a_star_search(problem, heuristic=null_heuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    frontier = util.PriorityQueue()
+    visited = set()
+    start_heuristic = heuristic(problem.get_start_state(), problem)
+    start = SearchNode(None, (problem.get_start_state(), None, 0))
+    frontier.push(start, start_heuristic)
+    while not frontier.is_empty():
+        current = frontier.pop()
+        state = current.state
+        if state not in visited:
+            visited.add(state)
+            if problem.is_goal_state(state):
+                return current.get_path()
+            for child in problem.get_successors(state):
+                if child not in visited:
+                    child_node = SearchNode(current, child)
+                    heuristic_value = heuristic(child_node.state, problem) + child_node.cost
+                    frontier.push(child_node, heuristic_value)
     util.raise_not_defined()
+
 
 # Abbreviations
 bfs = breadth_first_search
