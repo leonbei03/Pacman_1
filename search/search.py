@@ -176,7 +176,7 @@ def breadth_first_search(problem):
                     child_node = SearchNode(current, child)
                     frontier.push(child_node)
 
-    util.raise_not_defined()
+    return []
 
 
 def uniform_cost_search(problem):
