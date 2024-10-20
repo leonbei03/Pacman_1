@@ -321,6 +321,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         return state[1].count(True) == 0
+
     def get_successors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -354,19 +355,19 @@ class CornersProblem(search.SearchProblem):
         self._expanded += 1  # DO NOT CHANGE
         return successors
 
+    def get_cost_of_actions(self, actions):
 
-def get_cost_of_actions(self, actions):
-    """
-    Returns the cost of a particular sequence of actions.  If those actions
-    include an illegal move, return 999999.  This is implemented for you.
-    """
-    if actions is None: return 999999
-    x, y = self.startingPosition
-    for action in actions:
-        dx, dy = Actions.direction_to_vector(action)
-        x, y = int(x + dx), int(y + dy)
-        if self.walls[x][y]: return 999999
-    return len(actions)
+        """
+        Returns the cost of a particular sequence of actions.  If those actions
+        include an illegal move, return 999999.  This is implemented for you.
+        """
+        if actions is None: return 999999
+        x, y = self.startingPosition
+        for action in actions:
+            dx, dy = Actions.direction_to_vector(action)
+            x, y = int(x + dx), int(y + dy)
+            if self.walls[x][y]: return 999999
+        return len(actions)
 
 
 # Defined by us
