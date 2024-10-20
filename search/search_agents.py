@@ -33,7 +33,7 @@ description for details.
 
 Good luck and happy searching!
 """
-
+import sys
 from itertools import chain, combinations
 from game import Directions
 from game import Agent
@@ -302,7 +302,7 @@ class CornersProblem(search.SearchProblem):
             if not starting_game_state.has_food(*corner):
                 print('Warning: no food in corner ' + str(corner))
             self.corner_has_food.append(starting_game_state.has_food(*corner))
-        self.current_state = (self.startingPosition, tuple(self.corner_has_food))
+        self.current_state = (self.startingPosition, self.corners)
         self._expanded = 0  # DO NOT CHANGE; Number of search nodes expanded
 
         # Please add any code here which you would like to use
@@ -320,7 +320,7 @@ class CornersProblem(search.SearchProblem):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        return state[1].count(True) == 0
+        return len(state[1]) == 0
 
     def get_successors(self, state):
         """
@@ -343,10 +343,10 @@ class CornersProblem(search.SearchProblem):
             hits_wall = self.walls[next_x][next_y]
             if not hits_wall:
                 next_position = (next_x, next_y)
-                next_food = list(state[1])
-                if next_position in self.corners:
-                    next_food[self.corners.index(next_position)] = False
-                next_state = (next_position, tuple(next_food))
+                remaining_corners = list(state[1])
+                if next_position in remaining_corners:
+                    remaining_corners.remove(next_position)
+                next_state = (next_position, tuple(remaining_corners))
                 cost = 1
                 successors.append((next_state, action, cost))
 
@@ -399,7 +399,16 @@ def corners_heuristic(state, problem):
     admissible (as well as consistent).
     """
     corners = problem.corners  # These are the corner coordinates
-    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    walls = problem.walls #These are the walls of the maze, as a Grid (game.py)
+    position = state[0]
+    remaining_corners = state[1]
+    distance = sys.maxsize
+    for corner in remaining_corners:
+        miniminze = maze_distance(position, corner, problem)
+        if miniminze < distance:
+            distance = miniminze
+    return distance
+    # Minimize the sum of maze distance to corner + distance from corner to all remaining
 
     "*** YOUR CODE HERE ***"
     return 0  # Default to trivial solution
@@ -674,6 +683,7 @@ def maze_distance(point1, point2, game_state):
 
     This might be a useful helper function for your ApproximateSearchAgent.
     """
+
     x1, y1 = point1
     x2, y2 = point2
     walls = game_state.get_walls()
